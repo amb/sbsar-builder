@@ -13,10 +13,10 @@ wsbs.tools_path = "C:\Program Files\Allegorithmic\Substance Automation Toolkit"
 myContext = context.Context()
 
 
-def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in):
+def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in, height_in):
     aContext = context.Context()
     #aContext.getUrlAliasMgr().setAliasAbsPath(aAliasName = 'myAlias', aAbsPath = 'myAliasAbsolutePath')
-    print("create_mat:", aDestFileAbsPath, basec_in, rough_in, normal_in)
+    print("create_mat:", aDestFileAbsPath, basec_in, rough_in, normal_in, height_in)
 
     startPos = [48, 48, 0]
     xOffset  = [192, 0, 0]
@@ -83,6 +83,16 @@ def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in):
                                 aGUIPos = normals.getOffsetPosition(xOffset),
                                 aUsages = {sbsenum.UsageEnum.NORMAL: sbsenum.ComponentsEnum.RGBA})
             aGraph.connectNodes(aLeftNode = normals,  aRightNode = outNormal)
+            startPos = metallic.getOffsetPosition(yOffset)
+
+
+        if height_in is not None:
+            height = aGraph.createBitmapNode(aSBSDocument = sbsDoc, aResourcePath = height_in, aGUIPos = startPos,
+                        aParameters = {sbsenum.CompNodeParamEnum.COLOR_MODE: sbsenum.ColorModeEnum.GRAYSCALE})     
+            outHeight = aGraph.createOutputNode(aIdentifier = 'Height',
+                                aGUIPos = height.getOffsetPosition(xOffset),
+                                aUsages = {sbsenum.UsageEnum.HEIGHT: sbsenum.ComponentsEnum.RGBA})
+            aGraph.connectNodes(aLeftNode = height,  aRightNode = outHeight)
 
         # Write back the document structure into the destination .sbs file
         sbsDoc.writeDoc()
@@ -99,7 +109,7 @@ arglist = sys.argv[1:]
 print('Argument List:', str(arglist))
 
 if len(arglist) > 0:
-    sb_basec, sb_normal, sb_rough = None, None, None
+    sb_basec, sb_normal, sb_rough, sb_height = None, None, None, None
     sb_name = ntpath.basename(arglist[0]).split('_')[0]
     print("Name:",sb_name)
     for arg in arglist:
@@ -113,10 +123,13 @@ if len(arglist) > 0:
         if 'ROUGHNESS' in fname.upper():
             sb_rough = arg
             print("Roughness:", arg)
+        if 'HEIGHT' in fname.upper():
+            sb_height = arg
+            print("Height:", arg)
         #print(re.split(r"\W+", fname))
 
     mat_name = sb_name + ".sbs"
-    create_mat(mat_name, sb_basec, sb_rough, sb_normal)
+    create_mat(mat_name, sb_basec, sb_rough, sb_normal, sb_height)
 
     # cook .sbs into .sbsar
     wsbs.sbscooker(inputs=mat_name)

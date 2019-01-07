@@ -16,6 +16,7 @@ myContext = context.Context()
 def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in):
     aContext = context.Context()
     #aContext.getUrlAliasMgr().setAliasAbsPath(aAliasName = 'myAlias', aAbsPath = 'myAliasAbsolutePath')
+    print("create_mat:", aDestFileAbsPath, basec_in, rough_in, normal_in)
 
     startPos = [48, 48, 0]
     xOffset  = [192, 0, 0]
@@ -31,10 +32,13 @@ def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in):
         aGraph = sbsDoc.getSBSGraph(aGraphIdentifier = 'Material')
 
         if basec_in is not None:
-            basecImg = sbsDoc.createLinkedResource(aResourcePath = basec_in,
-                        aResourceTypeEnum = sbsenum.ResourceTypeEnum.BITMAP)
+            
+            #basecImg = sbsDoc.createLinkedResource(aResourcePath = basec_in,
+            #            aResourceTypeEnum = sbsenum.ResourceTypeEnum.BITMAP)
+            #print(basecImg.getPkgResourcePath())
             baseColor = aGraph.createBitmapNode(aSBSDocument = sbsDoc,
-                        aResourcePath = basecImg.getPkgResourcePath(),
+                        #aResourcePath = basecImg.getPkgResourcePath(),
+                        aResourcePath = basec_in,
                         aParameters   = {sbsenum.CompNodeParamEnum.COLOR_MODE: sbsenum.ColorModeEnum.COLOR},
                         aGUIPos       = startPos) 
             outBaseColor = aGraph.createOutputNode(aIdentifier = 'BaseColor',
@@ -44,10 +48,11 @@ def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in):
             startPos = baseColor.getOffsetPosition(yOffset)
 
         if rough_in is not None:
-            roughImg = sbsDoc.createLinkedResource(aResourcePath = rough_in,
-                        aResourceTypeEnum = sbsenum.ResourceTypeEnum.BITMAP)
+            #roughImg = sbsDoc.createLinkedResource(aResourcePath = rough_in,
+            #            aResourceTypeEnum = sbsenum.ResourceTypeEnum.BITMAP)
             roughness = aGraph.createBitmapNode(aSBSDocument = sbsDoc,
-                        aResourcePath = roughImg.getPkgResourcePath(),
+                        #aResourcePath = roughImg.getPkgResourcePath(),
+                        aResourcePath = rough_in,
                         aParameters   = {sbsenum.CompNodeParamEnum.COLOR_MODE: sbsenum.ColorModeEnum.GRAYSCALE},
                         aGUIPos       = startPos)     
             outRoughness = aGraph.createOutputNode(aIdentifier = 'Roughness',
@@ -67,10 +72,11 @@ def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in):
         startPos = metallic.getOffsetPosition(yOffset)
 
         if normal_in is not None:
-            normalImg = sbsDoc.createLinkedResource(aResourcePath = normal_in,
-                        aResourceTypeEnum = sbsenum.ResourceTypeEnum.BITMAP)
+            #normalImg = sbsDoc.createLinkedResource(aResourcePath = normal_in,
+            #            aResourceTypeEnum = sbsenum.ResourceTypeEnum.BITMAP)
             normals = aGraph.createBitmapNode(aSBSDocument = sbsDoc,
-                        aResourcePath = normalImg.getPkgResourcePath(),
+                        #aResourcePath = normalImg.getPkgResourcePath(),
+                        aResourcePath = normal_in,
                         aParameters   = {sbsenum.CompNodeParamEnum.COLOR_MODE: sbsenum.ColorModeEnum.COLOR},
                         aGUIPos       = startPos)     
             outNormal = aGraph.createOutputNode(aIdentifier = 'Normal',
@@ -99,14 +105,14 @@ if len(arglist) > 0:
     for arg in arglist:
         fname = ntpath.basename(arg)
         if 'COLOR' in fname.upper():
-            sb_basec = fname
-            print("Base color:", fname)
+            sb_basec = arg
+            print("Base color:", arg)
         if 'NORMAL' in fname.upper():
-            sb_normal = fname
-            print("Normal:", fname)
+            sb_normal = arg
+            print("Normal:", arg)
         if 'ROUGHNESS' in fname.upper():
-            sb_rough = fname
-            print("Roughness:", fname)
+            sb_rough = arg
+            print("Roughness:", arg)
         #print(re.split(r"\W+", fname))
 
     mat_name = sb_name + ".sbs"
@@ -118,7 +124,7 @@ if len(arglist) > 0:
     # print info about .sbsar
     print(wsbs.sbsrender.info(sb_name + ".sbsar"))
 
-# try:
-#     input("Press enter to continue")
-# except SyntaxError:
-#     pass
+try:
+    input("Press enter to continue")
+except SyntaxError:
+    pass

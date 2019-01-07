@@ -83,7 +83,7 @@ def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in, height_in, ao_in
                                 aGUIPos = normals.getOffsetPosition(xOffset),
                                 aUsages = {sbsenum.UsageEnum.NORMAL: sbsenum.ComponentsEnum.RGBA})
             aGraph.connectNodes(aLeftNode = normals,  aRightNode = outNormal)
-            startPos = metallic.getOffsetPosition(yOffset)
+            startPos = normals.getOffsetPosition(yOffset)
 
 
         if height_in is not None:
@@ -93,6 +93,7 @@ def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in, height_in, ao_in
                                 aGUIPos = height.getOffsetPosition(xOffset),
                                 aUsages = {sbsenum.UsageEnum.HEIGHT: sbsenum.ComponentsEnum.RGBA})
             aGraph.connectNodes(aLeftNode = height,  aRightNode = outHeight)
+            startPos = height.getOffsetPosition(yOffset)
 
         if ao_in is not None:
             ao = aGraph.createBitmapNode(aSBSDocument = sbsDoc, aResourcePath = ao_in, aGUIPos = startPos,
@@ -109,7 +110,7 @@ def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in, height_in, ao_in
         return True
 
     except BaseException as error:
-        log.error("!!! [demoHelloWorld] Failed to create the new package")
+        log.error("!!! Failed to create the new package")
         raise error
 
 

@@ -13,7 +13,7 @@ wsbs.tools_path = "C:\Program Files\Allegorithmic\Substance Automation Toolkit"
 myContext = context.Context()
 
 
-def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in, height_in):
+def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in, height_in, ao_in):
     aContext = context.Context()
     #aContext.getUrlAliasMgr().setAliasAbsPath(aAliasName = 'myAlias', aAbsPath = 'myAliasAbsolutePath')
     print("create_mat:", aDestFileAbsPath, basec_in, rough_in, normal_in, height_in)
@@ -94,6 +94,15 @@ def create_mat(aDestFileAbsPath, basec_in, rough_in, normal_in, height_in):
                                 aUsages = {sbsenum.UsageEnum.HEIGHT: sbsenum.ComponentsEnum.RGBA})
             aGraph.connectNodes(aLeftNode = height,  aRightNode = outHeight)
 
+        if ao_in is not None:
+            ao = aGraph.createBitmapNode(aSBSDocument = sbsDoc, aResourcePath = ao_in, aGUIPos = startPos,
+                        aParameters = {sbsenum.CompNodeParamEnum.COLOR_MODE: sbsenum.ColorModeEnum.GRAYSCALE})     
+            outAO = aGraph.createOutputNode(aIdentifier = 'AO',
+                                aGUIPos = ao.getOffsetPosition(xOffset),
+                                aUsages = {sbsenum.UsageEnum.AMBIENT_OCCLUSION : sbsenum.ComponentsEnum.RGBA})
+            aGraph.connectNodes(aLeftNode = ao,  aRightNode = outAO)
+
+
         # Write back the document structure into the destination .sbs file
         sbsDoc.writeDoc()
         log.info("=> Resulting substance saved at %s", aDestFileAbsPath)
@@ -109,7 +118,7 @@ arglist = sys.argv[1:]
 print('Argument List:', str(arglist))
 
 if len(arglist) > 0:
-    sb_basec, sb_normal, sb_rough, sb_height = None, None, None, None
+    sb_basec, sb_normal, sb_rough, sb_height, sb_ao = None, None, None, None, None
     sb_name = ntpath.basename(arglist[0]).split('_')[0]
     print("Name:",sb_name)
     for arg in arglist:
@@ -126,10 +135,13 @@ if len(arglist) > 0:
         if 'HEIGHT' in fname.upper():
             sb_height = arg
             print("Height:", arg)
+        if 'AMBIENT' in fname.upper():
+            sb_ao = arg
+            print("AO:", arg)
         #print(re.split(r"\W+", fname))
 
     mat_name = sb_name + ".sbs"
-    create_mat(mat_name, sb_basec, sb_rough, sb_normal, sb_height)
+    create_mat(mat_name, sb_basec, sb_rough, sb_normal, sb_height, sb_ao)
 
     # cook .sbs into .sbsar
     wsbs.sbscooker(inputs=mat_name)
